@@ -30,7 +30,7 @@ Outlook File Drag does not currently allow dragging and dropping items as
 files in calendar view, as this was causing Outlook to crash.  Hopefully this
 will be fixed in a future release.
 
-##Acknowledgements
+## Acknowledgements
 
 Outlook File Drag uses these open source projects:
 
