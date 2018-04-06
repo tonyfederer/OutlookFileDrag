@@ -48,6 +48,12 @@ Outlook File Drag uses these open source projects:
 
 You can view the source code, report issues, and contribute on [Github](https://github.com/tonyfederer/OutlookFileDrag).
 
+## Donate
+
+If you find this project useful, please consider donating.  Your donations are appreciated. =)
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BSAGCF5VAJLN2)
+
 ## Version History
 
 ### [1.0](https://github.com/tonyfederer/OutlookFileDrag/releases/tag/v1.0)
