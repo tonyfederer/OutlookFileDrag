@@ -52,7 +52,7 @@ namespace OutlookFileDrag
             Marshal.StructureToPtr(dropFiles, ptrDropFiles, true);
 
             //Copy filenames to memory after DROPFILES structure
-            IntPtr ptrFiles = new IntPtr(ptrDropFiles.ToInt32() + Marshal.SizeOf(dropFiles));
+            IntPtr ptrFiles = IntPtr.Add(ptrDropFiles, Marshal.SizeOf(dropFiles));
             Marshal.Copy(filenameBytes, 0, ptrFiles, filenameBytes.Length);
             
             //Load structure into medium
@@ -116,7 +116,7 @@ namespace OutlookFileDrag
                 string[] filenames = new string[fgd.cItems];
 
                 //Get the pointer to the first file descriptor
-                IntPtr fdPtr = (IntPtr)((int)fgdaPtr + Marshal.SizeOf(fgdaPtr));
+                IntPtr fdPtr = IntPtr.Add(fgdaPtr, sizeof(uint));
 
                 //Loop for the number of files acording to the file group descriptor
                 for (int fdIndex = 0; fdIndex < fgd.cItems; fdIndex++)
@@ -129,7 +129,7 @@ namespace OutlookFileDrag
                     filenames[fdIndex] = fd.cFileName;
 
                     //Move the file descriptor pointer to the next file descriptor
-                    fdPtr = (IntPtr)((int)fdPtr + Marshal.SizeOf(fd));
+                    fdPtr = IntPtr.Add(fdPtr, Marshal.SizeOf(fd));
                 }
 
                 return filenames;
@@ -179,7 +179,7 @@ namespace OutlookFileDrag
                     throw new OutOfMemoryException();
                 Marshal.Copy(bytes, 0, fgdaPtr, bytes.Length);
 
-                //Marshal the unmanaged memory to a FILEGROUPDESCRIPTORA struct
+                //Marshal the unmanaged memory to a FILEGROUPDESCRIPTORW struct
                 object fgdObj = Marshal.PtrToStructure(fgdaPtr, typeof(NativeMethods.FILEGROUPDESCRIPTORW));
                 NativeMethods.FILEGROUPDESCRIPTORW fgd = (NativeMethods.FILEGROUPDESCRIPTORW)fgdObj;
 
@@ -187,7 +187,7 @@ namespace OutlookFileDrag
                 string[] filenames = new string[fgd.cItems];
 
                 //Get the pointer to the first file descriptor
-                IntPtr fdPtr = (IntPtr)((int)fgdaPtr + Marshal.SizeOf(fgdaPtr));
+                IntPtr fdPtr = IntPtr.Add(fgdaPtr, sizeof(uint));
 
                 //Loop for the number of files acording to the file group descriptor
                 for (int fdIndex = 0; fdIndex < fgd.cItems; fdIndex++)
@@ -200,7 +200,7 @@ namespace OutlookFileDrag
                     filenames[fdIndex] = fd.cFileName;
 
                     //Move the file descriptor pointer to the next file descriptor
-                    fdPtr = (IntPtr)((int)fdPtr + Marshal.SizeOf(fd));
+                    fdPtr = IntPtr.Add(fdPtr, Marshal.SizeOf(fd));
                 }
 
                 return filenames;
@@ -282,7 +282,7 @@ namespace OutlookFileDrag
                 //iLockBytes.ReadAt(0, iLockBytesContent, iLockBytesContent.Length, null);
 
                 //Read bytes into stream
-                IntPtr ptrRead = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)));
+                IntPtr ptrRead = Marshal.AllocCoTaskMem(sizeof(int));
                 byte[] buffer = new byte[1024];
                 int offset = 0;
                 int bytesRead;
@@ -324,7 +324,7 @@ namespace OutlookFileDrag
                 iStream.Stat(out iStreamStat, 0);
                 int iStreamSize = (int)iStreamStat.cbSize;
 
-                IntPtr ptrRead = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(int)));
+                IntPtr ptrRead = Marshal.AllocCoTaskMem(sizeof(int));
                 byte[] buffer = new byte[1024];
                 int bytesRead;
                 while (true)
@@ -363,115 +363,5 @@ namespace OutlookFileDrag
                 NativeMethods.GlobalUnlock(new HandleRef((object)null, handle));
             }
         }
-
-        //private static MemoryStream ReadIStorageFromHandle(IntPtr handle)
-        //{
-        //    //To handle a IStorage it needs to be written into a second unmanaged memory mapped storage 
-        //    //and then the data can be read from memory into a managed byte and returned as a MemoryStream
-
-        //    NativeMethods.IStorage iStorage = null;
-        //    NativeMethods.IStorage iStorage2 = null;
-        //    NativeMethods.ILockBytes iLockBytes = null;
-        //    System.Runtime.InteropServices.ComTypes.STATSTG iLockBytesStat;
-        //    try
-        //    {
-        //        //Marshal the returned pointer to a IStorage object
-        //        iStorage = (NativeMethods.IStorage)Marshal.GetObjectForIUnknown(handle);
-        //        Marshal.Release(handle);
-
-        //        //Create a ILockBytes (unmanaged byte array) and then create a IStorage using the byte array as a backing store
-        //        iLockBytes = NativeMethods.CreateILockBytesOnHGlobal(IntPtr.Zero, true);
-        //        iStorage2 = NativeMethods.StgCreateDocfileOnILockBytes(iLockBytes, 0x00001012, 0);
-
-        //        //Copy the returned IStorage into the new IStorage
-        //        iStorage.CopyTo(0, null, IntPtr.Zero, iStorage2);
-        //        iLockBytes.Flush();
-        //        iStorage2.Commit(0);
-
-        //        //Get the STATSTG of the ILockBytes to determine how many bytes were written to it
-        //        iLockBytesStat = new System.Runtime.InteropServices.ComTypes.STATSTG();
-        //        iLockBytes.Stat(out iLockBytesStat, 1);
-        //        int iLockBytesSize = (int)iLockBytesStat.cbSize;
-
-        //        //Read the data from the ILockBytes (unmanaged byte array) into a managed byte array
-        //        byte[] iLockBytesContent = new byte[iLockBytesSize];
-        //        iLockBytes.ReadAt(0, iLockBytesContent, iLockBytesContent.Length, null);
-
-        //        //Wrap the managed byte array into a memory stream and return it
-        //        return new MemoryStream(iLockBytesContent);
-        //    }
-        //    finally
-        //    {
-        //        //release all unmanaged objects
-        //        Marshal.ReleaseComObject(iStorage2);
-        //        Marshal.ReleaseComObject(iLockBytes);
-        //        Marshal.ReleaseComObject(iStorage);
-        //    }
-        //}
-
-        //private static MemoryStream ReadIStreamFromHandle(IntPtr handle)
-        //{
-        //    IStream iStream = null;
-        //    System.Runtime.InteropServices.ComTypes.STATSTG iStreamStat;
-        //    try
-        //    {
-        //        //Marshal the returned pointer to a IStream object
-        //        iStream = (IStream)Marshal.GetObjectForIUnknown(handle);
-        //        Marshal.Release(handle);
-
-        //        //Get the STATSTG of the IStream to determine how many bytes are in it
-        //        iStreamStat = new System.Runtime.InteropServices.ComTypes.STATSTG();
-        //        iStream.Stat(out iStreamStat, 0);
-        //        int iStreamSize = (int)iStreamStat.cbSize;
-
-        //        //Read the data from the IStream into a managed byte array
-        //        byte[] iStreamContent = new byte[iStreamSize];
-        //        iStream.Read(iStreamContent, iStreamContent.Length, IntPtr.Zero);
-
-        //        //Wrap the managed byte array into a memory stream and return it
-        //        return new MemoryStream(iStreamContent);
-        //    }
-        //    finally
-        //    {
-        //        //Release all unmanaged objects
-        //        Marshal.ReleaseComObject(iStream);
-        //    }
-        //}
-
-        //private static MemoryStream ReadByteStreamFromHandle(IntPtr handle, out bool isSerializedObject)
-        //{
-        //    IntPtr source = NativeMethods.GlobalLock(new HandleRef((object)null, handle));
-        //    if (source == IntPtr.Zero)
-        //        throw new ExternalException("An external error occurred in GlobalLock", -2147024882);
-        //    try
-        //    {
-        //        int length = NativeMethods.GlobalSize(new HandleRef((object)null, handle));
-        //        byte[] numArray = new byte[length];
-        //        Marshal.Copy(source, numArray, 0, length);
-        //        int index1 = 0;
-        //        if (length > serializedObjectID.Length)
-        //        {
-        //            isSerializedObject = true;
-        //            for (int index2 = 0; index2 < serializedObjectID.Length; ++index2)
-        //            {
-        //                if ((int)serializedObjectID[index2] != (int)numArray[index2])
-        //                {
-        //                    isSerializedObject = false;
-        //                    break;
-        //                }
-        //            }
-        //            if (isSerializedObject)
-        //                index1 = serializedObjectID.Length;
-        //        }
-        //        else
-        //            isSerializedObject = false;
-        //        return new MemoryStream(numArray, index1, numArray.Length - index1);
-        //    }
-        //    finally
-        //    {
-        //        //Release all unmanaged objects
-        //        NativeMethods.GlobalUnlock(new HandleRef((object)null, handle));
-        //    }
-        //}
     }
 }

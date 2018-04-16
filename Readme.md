@@ -56,7 +56,11 @@ If you find this project useful, please consider donating.  Your donations are a
 
 ## Version History
 
-### [1.0](https://github.com/tonyfederer/OutlookFileDrag/releases/tag/v1.0)
+### [1.01]
+- Fixed issues with 64-bit Outlook
+- Added self-signed certificate
+
+### [1.0]
 - Initial Release
 
 ## Copyright

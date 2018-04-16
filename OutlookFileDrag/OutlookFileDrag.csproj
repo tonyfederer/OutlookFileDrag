@@ -204,6 +204,7 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="OutlookFileDrag.pfx" />
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
@@ -235,10 +236,11 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>OutlookDragAddin_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>
+    </ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>A4A9A9EF99EA3335D8063F7A15375C1D6D0C90EF</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>6EA39ECAD013020F956462F4CBF07570C217A1CF</ManifestCertificateThumbprint>
   </PropertyGroup>
   <!-- Include the build rules for a C# project. -->
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
