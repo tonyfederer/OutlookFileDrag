@@ -56,7 +56,10 @@ If you find this project useful, please consider donating.  Your donations are a
 
 ## Version History
 
-### 1.01
+### 1.0.2
+- Fixed PathTooLong exception when temporary filename was longer than MAX_PATH
+
+### 1.0.1
 - Fixed issues with 64-bit Outlook
 - Added self-signed certificate
 
