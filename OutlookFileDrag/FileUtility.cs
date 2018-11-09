@@ -48,17 +48,34 @@ namespace OutlookFileDrag
 
         public static string GetUniqueFilename(string filename)
         {
+            string filenameNoExt;
+            string ext;
+
+            //If filename is too long, truncate filename
+            if (filename.Length >= NativeMethods.MAX_PATH)
+            {
+                ext = Path.GetExtension(filename);
+                filename = filename.Substring(0, NativeMethods.MAX_PATH - ext.Length - 1) + ext;
+            }
+            
             //If file does not exist, use original filename
             if (!File.Exists(filename))
                 return filename;
 
             //Try appending number to filename until unique filename is found
-            string filenameNoExt = Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename));
-            string ext = Path.GetExtension(filename);
+            filenameNoExt = Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename));
+            ext = Path.GetExtension(filename);
 
             for (int index = 1; index < 1024; index++)
             {
                 string newFilename = string.Format("{0} ({1}){2}", filenameNoExt, index, ext);
+
+                //If new filename is too long, truncate new filename
+                if (newFilename.Length > NativeMethods.MAX_PATH)
+                {
+                    newFilename = string.Format("{0} ({1}){2}", filenameNoExt.Substring(0, NativeMethods.MAX_PATH - ext.Length - 8), index, ext);
+                }
+
                 if (!File.Exists(newFilename))
                     return newFilename;
             }

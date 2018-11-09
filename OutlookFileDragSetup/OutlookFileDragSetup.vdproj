@@ -740,15 +740,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Outlook File Drag"
-        "ProductCode" = "8:{662FD8B9-6FA9-4DF5-96C0-5110C403BC6D}"
-        "PackageCode" = "8:{F4CC2AE3-44AD-404C-B0F2-B97D6A72D44B}"
+        "ProductCode" = "8:{FF7FBAEC-CA4F-4E26-BF99-93D76C70FB21}"
+        "PackageCode" = "8:{C17F05A5-D68C-4727-B599-3B3D9BE419A5}"
         "UpgradeCode" = "8:{2F626147-8F83-4FC1-9190-32AA4F25D487}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.1"
+        "ProductVersion" = "8:1.0.2"
         "Manufacturer" = "8:Tony Federer"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1546,7 +1546,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_54EF5F74A56C4AEE96D4330B540B4A3A"
             {
-            "SourcePath" = "8:..\\OutlookFileDrag\\obj\\Release\\OutlookFileDrag.dll"
+            "SourcePath" = "8:..\\OutlookFileDrag\\obj\\Debug\\OutlookFileDrag.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_919F44B827474C528E0E9FF4CAE2B9AE"

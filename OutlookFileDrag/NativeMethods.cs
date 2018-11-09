@@ -39,6 +39,8 @@ namespace OutlookFileDrag
 
         public const int STG_E_MEDIUMFULL = unchecked((int)0x80030070);
 
+        public const int MAX_PATH = 260;
+
         [DllImport("ole32.dll")]
         public static extern int DoDragDrop(NativeMethods.IDataObject pDataObj, NativeMethods.IDropSource pDropSource, uint dwOKEffects, uint[] pdwEffect);
 
