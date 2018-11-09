@@ -26,7 +26,7 @@ namespace OutlookFileDrag
             try
             {
                 log.Debug("Drag started");
-                if (!DataObjectHelper.GetDataPresent(pDataObj, "FileGroupDescriptorW"))
+                if (DataObjectHelper.GetFilenames(pDataObj) == null)
                 {
                     log.Debug("No virtual files found -- continuing original drag");
                     return NativeMethods.DoDragDrop(pDataObj, pDropSource, dwOKEffects, pdwEffect);
