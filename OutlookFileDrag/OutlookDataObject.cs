@@ -8,7 +8,7 @@ using log4net;
 namespace OutlookFileDrag
 {
     //Class that wraps Outlook data object and adds support for CF_HDROP format
-    class OutlookDataObject : NativeMethods.IDataObject
+    class OutlookDataObject : NativeMethods.IDataObject, ICustomQueryInterface  
     {
         private NativeMethods.IDataObject innerData;
         private string[] tempFilenames;
@@ -267,5 +267,44 @@ namespace OutlookFileDrag
             }
         }
 
+        public CustomQueryInterfaceResult GetInterface(ref Guid iid, out IntPtr ppv)
+        {
+            ppv = IntPtr.Zero;
+            try
+            {
+                log.DebugFormat("Get COM interface {0}", iid);
+
+                //For IDropSource interface, use interface on this object
+                if (iid == new Guid("0000010E-0000-0000-C000-000000000046"))
+                {
+                    log.DebugFormat("Interface handled");
+                    return CustomQueryInterfaceResult.NotHandled;
+                }
+
+                else
+                {
+                    //For all other interfaces, use interface on original object
+                    IntPtr pUnk = Marshal.GetIUnknownForObject(this.innerData);
+                    int retVal = Marshal.QueryInterface(pUnk, ref iid, out ppv);
+                    if (retVal == NativeMethods.S_OK)
+                    {
+                        log.DebugFormat("Interface handled by inner object");
+                        return CustomQueryInterfaceResult.Handled;
+                    }
+                    else
+                    {
+                        log.DebugFormat("Interface not handled by inner object");
+                        return CustomQueryInterfaceResult.Failed;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in ICustomQueryInterface", ex);
+                return CustomQueryInterfaceResult.Failed;
+            }
+
+        }
     }
 }

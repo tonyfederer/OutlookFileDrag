@@ -56,6 +56,9 @@ If you find this project useful, please consider donating.  Your donations are a
 
 ## Version History
 
+### 1.0.3
+- Fixed issue that prevented dragging items from one group to another
+
 ### 1.0.2
 - Fixed PathTooLong exception when temporary filename was longer than MAX_PATH
 
