@@ -26,8 +26,8 @@ asks for the physical files, the files are saved to a temp folder.
 
 To install, run the installer that matches your Windows build:
 
-- [Download for 64-bit Windows (Outlook 32-bit or 64-bit)](https://github.com/tonyfederer/OutlookFileDrag/files/1913788/OutlookFileDragSetup_x64.zip)
-- [Download for 32-bit Windows](https://github.com/tonyfederer/OutlookFileDrag/files/1913787/OutlookFileDragSetup.zip)
+- [Download for 64-bit Windows (Outlook 32-bit or 64-bit)](https://github.com/tonyfederer/OutlookFileDrag/files/2564500/OutlookFileDragSetup_x64.zip)
+- [Download for 32-bit Windows](https://github.com/tonyfederer/OutlookFileDrag/files/2564499/OutlookFileDragSetup.zip)
 
 After installing, restart Outlook for the add-in to take effect.
 
@@ -56,7 +56,10 @@ If you find this project useful, please consider donating.  Your donations are a
 
 ## Version History
 
-### 1.01
+### 1.0.2
+- Fixed PathTooLong exception when temporary filename was longer than MAX_PATH
+
+### 1.0.1
 - Fixed issues with 64-bit Outlook
 - Added self-signed certificate
 
