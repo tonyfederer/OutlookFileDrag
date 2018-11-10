@@ -26,8 +26,8 @@ asks for the physical files, the files are saved to a temp folder.
 
 To install, run the installer that matches your Windows build:
 
-- [Download for 64-bit Windows (Outlook 32-bit or 64-bit)](https://github.com/tonyfederer/OutlookFileDrag/files/2564500/OutlookFileDragSetup_x64.zip)
-- [Download for 32-bit Windows](https://github.com/tonyfederer/OutlookFileDrag/files/2564499/OutlookFileDragSetup.zip)
+- [Download for 64-bit Windows (Outlook 32-bit or 64-bit)](https://github.com/tonyfederer/OutlookFileDrag/files/2568104/OutlookFileDragSetup_x64.zip)
+- [Download for 32-bit Windows](https://github.com/tonyfederer/OutlookFileDrag/files/2568105/OutlookFileDragSetup.zip)
 
 After installing, restart Outlook for the add-in to take effect.
 
