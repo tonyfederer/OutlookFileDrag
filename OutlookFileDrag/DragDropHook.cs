@@ -33,7 +33,7 @@ namespace OutlookFileDrag
                 }
 
                 //Start new drag
-                log.Debug("Virtual files found -- starting new drag adding CF_HDROP and CFSTR_SHELLIDLIST formsts");
+                log.Debug("Virtual files found -- starting new drag adding CF_HDROP format");
                 log.DebugFormat("Files: {0}", string.Join(",", DataObjectHelper.GetFilenames(pDataObj)));
 
                 NativeMethods.IDataObject newDataObj = new OutlookDataObject(pDataObj);
