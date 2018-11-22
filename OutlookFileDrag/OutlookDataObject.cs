@@ -274,7 +274,7 @@ namespace OutlookFileDrag
             {
                 log.DebugFormat("Get COM interface {0}", iid);
 
-                //For IDropTarget interface, use interface on this object
+                //For IDataObject interface, use interface on this object
                 if (iid == new Guid("0000010E-0000-0000-C000-000000000046"))
                 {
                     log.DebugFormat("Interface handled");
