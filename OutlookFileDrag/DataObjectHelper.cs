@@ -2,11 +2,13 @@
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using log4net;
 
 namespace OutlookFileDrag
 {
     static class DataObjectHelper
     {
+        private static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly byte[] serializedObjectID = new Guid("FD9EA796-3B13-4370-A679-56106BB288FB").ToByteArray();
 
         internal static int GetClipboardFormat(string name)
@@ -20,9 +22,11 @@ namespace OutlookFileDrag
 
         internal static bool GetDataPresent(NativeMethods.IDataObject data, string formatName)
         {
+
             //Check if drag contains virtual files
+            log.DebugFormat("Get data present: {0}", formatName);
             FORMATETC format = new FORMATETC();
-            format.cfFormat = (short)GetClipboardFormat("FileGroupDescriptorW");
+            format.cfFormat = (short)GetClipboardFormat(formatName);
             format.dwAspect = DVASPECT.DVASPECT_CONTENT;
             format.lindex = -1;
             format.ptd = IntPtr.Zero;
@@ -62,6 +66,8 @@ namespace OutlookFileDrag
 
         internal static string[] GetFilenames(NativeMethods.IDataObject data)
         {
+            log.Debug("Getfilenames");
+
             //Try Unicode first
             string[] filenames = GetFilenamesUnicode(data);
 
@@ -74,7 +80,9 @@ namespace OutlookFileDrag
 
         internal static string[] GetFilenamesAnsi(NativeMethods.IDataObject data)
         {
+            log.Debug("Getting filenames (ANSI)");
             IntPtr fgdaPtr = IntPtr.Zero;
+            STGMEDIUM medium = new STGMEDIUM();
 
             try
             {
@@ -88,13 +96,17 @@ namespace OutlookFileDrag
 
                 //Query if format exists in data
                 if (data.QueryGetData(format) != NativeMethods.S_OK)
+                {
+                    log.Debug("No filenames found");
                     return null;
+                }
 
                 //Get data into medium
-                STGMEDIUM medium = new STGMEDIUM();
+                medium = new STGMEDIUM();
                 data.GetData(format, out medium);
 
                 //Read medium into byte array
+                log.Debug("Reading structure into memory stream");
                 byte[] bytes;
                 using (MemoryStream stream = new MemoryStream())
                 {
@@ -105,12 +117,15 @@ namespace OutlookFileDrag
                 }
 
                 //Copy the file group descriptor into unmanaged memory
+                log.Debug("Copying structure into unmanaged memory");
                 fgdaPtr = Marshal.AllocHGlobal(bytes.Length);
                 Marshal.Copy(bytes, 0, fgdaPtr, bytes.Length);
 
                 //Marshal the unmanaged memory to a FILEGROUPDESCRIPTORA struct
+                log.Debug("Marshaling unmanaged memory into FILEGROUPDESCRIPTORA struct");
                 object fgdObj = Marshal.PtrToStructure(fgdaPtr, typeof(NativeMethods.FILEGROUPDESCRIPTORA));
                 NativeMethods.FILEGROUPDESCRIPTORA fgd = (NativeMethods.FILEGROUPDESCRIPTORA)fgdObj;
+                log.Debug(string.Format("Files found: {0}", fgd.cItems));
 
                 //Create an array to store file names
                 string[] filenames = new string[fgd.cItems];
@@ -121,6 +136,8 @@ namespace OutlookFileDrag
                 //Loop for the number of files acording to the file group descriptor
                 for (int fdIndex = 0; fdIndex < fgd.cItems; fdIndex++)
                 {
+                    log.DebugFormat("Filenames found: {0}", string.Join(", ", filenames));
+
                     //Marshal the pointer to the file descriptor as a FILEDESCRIPTORA struct
                     object fdObj = Marshal.PtrToStructure(fdPtr, typeof(NativeMethods.FILEDESCRIPTORA));
                     NativeMethods.FILEDESCRIPTORA fd = (NativeMethods.FILEDESCRIPTORA)fdObj;
@@ -132,18 +149,25 @@ namespace OutlookFileDrag
                     fdPtr = IntPtr.Add(fdPtr, Marshal.SizeOf(fd));
                 }
 
+                log.DebugFormat("Filenames found: {0}", string.Join(", ", filenames));
+
                 return filenames;
 
             }
             finally
             {
-                Marshal.FreeHGlobal(fgdaPtr);		
+                //Release all unmanaged objects
+                Marshal.FreeHGlobal(fgdaPtr);
+                if (medium.pUnkForRelease == null)
+                    NativeMethods.ReleaseStgMedium(ref medium);
             }
         }
 
         internal static string[] GetFilenamesUnicode(NativeMethods.IDataObject data)
         {
+            log.Debug("Getting filenames (Unicode)");
             IntPtr fgdaPtr = IntPtr.Zero;
+            STGMEDIUM medium = new STGMEDIUM();
 
             try
             {
@@ -157,13 +181,17 @@ namespace OutlookFileDrag
 
                 //Query if format exists in data
                 if (data.QueryGetData(format) != NativeMethods.S_OK)
+                {
+                    log.Debug("No filenames found");
                     return null;
+                }
 
                 //Get data into medium
-                STGMEDIUM medium = new STGMEDIUM();
+                medium = new STGMEDIUM();
                 data.GetData(format, out medium);
 
-                //Read medium into string
+                //Read medium into byte array
+                log.Debug("Reading structure into memory stream");
                 byte[] bytes;
                 using (MemoryStream stream = new MemoryStream())
                 {
@@ -174,14 +202,17 @@ namespace OutlookFileDrag
                 }
 
                 //Copy the file group descriptor into unmanaged memory
+                log.Debug("Copying structure into unmanaged memory");
                 fgdaPtr = Marshal.AllocHGlobal(bytes.Length);
                 if (fgdaPtr == IntPtr.Zero)
                     throw new OutOfMemoryException();
                 Marshal.Copy(bytes, 0, fgdaPtr, bytes.Length);
 
                 //Marshal the unmanaged memory to a FILEGROUPDESCRIPTORW struct
+                log.Debug("Marshaling unmanaged memory into FILEGROUPDESCRIPTORW struct");
                 object fgdObj = Marshal.PtrToStructure(fgdaPtr, typeof(NativeMethods.FILEGROUPDESCRIPTORW));
                 NativeMethods.FILEGROUPDESCRIPTORW fgd = (NativeMethods.FILEGROUPDESCRIPTORW)fgdObj;
+                log.Debug(string.Format("Files found: {0}", fgd.cItems));
 
                 //Create an array to store file names
                 string[] filenames = new string[fgd.cItems];
@@ -192,6 +223,7 @@ namespace OutlookFileDrag
                 //Loop for the number of files acording to the file group descriptor
                 for (int fdIndex = 0; fdIndex < fgd.cItems; fdIndex++)
                 {
+                    log.DebugFormat("Getting filename {0}", fdIndex);
                     //Marshal the pointer to the file descriptor as a FILEDESCRIPTORW struct
                     object fdObj = Marshal.PtrToStructure(fdPtr, typeof(NativeMethods.FILEDESCRIPTORW));
                     NativeMethods.FILEDESCRIPTORW fd = (NativeMethods.FILEDESCRIPTORW)fdObj;
@@ -203,31 +235,46 @@ namespace OutlookFileDrag
                     fdPtr = IntPtr.Add(fdPtr, Marshal.SizeOf(fd));
                 }
 
+                log.DebugFormat("Filenames found: {0}", string.Join(", ", filenames));
                 return filenames;
 
             }
             finally
             {
+                //Release all unmanaged objects
                 Marshal.FreeHGlobal(fgdaPtr);
+                if (medium.pUnkForRelease == null)
+                    NativeMethods.ReleaseStgMedium(ref medium);
             }
         }
 
         internal static void ReadFileContents(NativeMethods.IDataObject data, int index, Stream stream)
         {
-            //Define FileContents format
-            FORMATETC format = new FORMATETC();
-            format.cfFormat = (short)System.Windows.Forms.DataFormats.GetFormat("FileContents").Id;
-            format.dwAspect = DVASPECT.DVASPECT_CONTENT;
-            format.lindex = index;
-            format.ptd = IntPtr.Zero;
-            format.tymed = TYMED.TYMED_ISTREAM | TYMED.TYMED_ISTORAGE | TYMED.TYMED_HGLOBAL;
+            STGMEDIUM medium = new STGMEDIUM();            
 
-            //Get data
-            STGMEDIUM medium = new STGMEDIUM();
-            data.GetData(format, out medium);
-            
-            //Read medium into stream
-            ReadMediumIntoStream(medium, stream);
+            try
+            {
+                //Define FileContents format
+                FORMATETC format = new FORMATETC();
+                format.cfFormat = (short)System.Windows.Forms.DataFormats.GetFormat("FileContents").Id;
+                format.dwAspect = DVASPECT.DVASPECT_CONTENT;
+                format.lindex = index;
+                format.ptd = IntPtr.Zero;
+                format.tymed = TYMED.TYMED_ISTREAM | TYMED.TYMED_ISTORAGE | TYMED.TYMED_HGLOBAL;
+
+                //Get data
+                medium = new STGMEDIUM();
+                data.GetData(format, out medium);
+
+                //Read medium into stream
+                ReadMediumIntoStream(medium, stream);
+            }
+            finally
+            {
+                //Release all unmanaged objects
+                if (medium.pUnkForRelease == null)
+                    NativeMethods.ReleaseStgMedium(ref medium);
+            }
         }
 
         internal static void ReadMediumIntoStream(STGMEDIUM medium, Stream stream)

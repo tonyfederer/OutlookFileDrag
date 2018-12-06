@@ -56,6 +56,12 @@ If you find this project useful, please consider donating.  Your donations are a
 
 ## Version History
 
+### 1.0.4
+- Added additional debug logging
+- Fixed issue where STGMEDIUM was not being released after reading filenames
+- Fixed issue that where reading filenames sometimes failed
+- Fixed hooking process to allow starting and stopping hook without disposing and recreating hook
+
 ### 1.0.3
 - Fixed issue that prevented dragging items from one group to another
 

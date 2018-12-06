@@ -62,6 +62,9 @@ namespace OutlookFileDrag
         [DllImport("ole32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
         public static extern IStorage StgCreateDocfileOnILockBytes(ILockBytes plkbyt, uint grfMode, uint reserved);
 
+        [DllImport("ole32.dll")]
+        internal static extern void ReleaseStgMedium(ref STGMEDIUM medium);
+
         [ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("0000000B-0000-0000-C000-000000000046")]
         public interface IStorage
         {
@@ -134,7 +137,7 @@ namespace OutlookFileDrag
         public sealed class FILEGROUPDESCRIPTORA
         {
             public uint cItems;
-            public FILEDESCRIPTORA[] fgd;
+            //public FILEDESCRIPTORA[] fgd;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
@@ -158,7 +161,7 @@ namespace OutlookFileDrag
         public sealed class FILEGROUPDESCRIPTORW
         {
             public uint cItems;
-            public FILEDESCRIPTORW[] fgd;
+            //public FILEDESCRIPTORW[] fgd;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
