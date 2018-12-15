@@ -5,8 +5,9 @@
 ## Overview
 
 Outlook File Drag is an add-in for Outlook 2013 and 2016 that allows you to drag
-and drop Outlook items (messages, attachments, etc) to applications that allow 
-physical files to be dropped, such as web browsers.
+and drop Outlook items (messages, attachments, contacts, tasks, appointments, 
+meetings, etc) to applications that allow physical files to be dropped, such as
+web browsers.
 
 ## How Does it Work?
 
@@ -15,27 +16,24 @@ format as virtual files (CFSTR_FILEDESCRIPTORW) since the files do not exist
 directly on disk.  Instead, they are contained in a PST file, OST file, or on 
 an Exchange server.
 
-However, many applications do not support, such as web browers and most .NET/
-Java applications.
+However, many applications do not support this format, such as web browers and 
+most .NET/Java applications.
 
 To work around this issue, Outlook File Drag hooks the Outlook drag and drop
-process and adds support for physical files (CF_HDROP).  When the application 
-asks for the physical files, the files are saved to a temp folder.
+process and adds support for physical files (CF_HDROP).  When the receiving 
+application asks for the physical files, the files are saved to a temp folder 
+and those filenames are returned to the application.  The application processes
+the files (such as uploading them).  Outlook File Drag deletes the temp files 
+later in a cleanup process.
 
 ## Installation
 
 To install, run the installer that matches your Windows build:
 
-- [Download for 64-bit Windows (Outlook 32-bit or 64-bit)](https://github.com/tonyfederer/OutlookFileDrag/files/2651751/OutlookFileDragSetup_x64.zip)
-- [Download for 32-bit Windows](https://github.com/tonyfederer/OutlookFileDrag/files/2651746/OutlookFileDragSetup.zip)
+- [Download for 64-bit Windows (Outlook 32-bit or 64-bit)](https://github.com/tonyfederer/OutlookFileDrag/files/2674450/OutlookFileDragSetup_x64.zip)
+- [Download for 32-bit Windows](https://github.com/tonyfederer/OutlookFileDrag/files/2674451/OutlookFileDragSetup.zip)
 
 After installing, restart Outlook for the add-in to take effect.
-
-## Known Issues
-
-Outlook File Drag does not currently allow dragging and dropping items as 
-files in calendar view, as this was causing Outlook to crash.  Hopefully this
-will be fixed in a future release.
 
 ## Acknowledgements
 
@@ -55,6 +53,9 @@ If you find this project useful, please consider donating.  Your donations are a
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BSAGCF5VAJLN2)
 
 ## Version History
+
+### 1.0.5
+- Fixed crash when dragging calendar items
 
 ### 1.0.4
 - Added additional debug logging
