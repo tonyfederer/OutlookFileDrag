@@ -26,6 +26,13 @@ and those filenames are returned to the application.  The application processes
 the files (such as uploading them).  Outlook File Drag deletes the temp files 
 later in a cleanup process.
 
+## Features
+
+- Works with Chrome, Firefox, Internet Explorer, and Edge
+- Allows drag and drop into HTML5-based web applications
+- Drag multiple items at once
+- Supports Unicode characters
+
 ## Installation
 
 To install, run the installer that matches your Windows build:
