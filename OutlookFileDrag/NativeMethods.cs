@@ -19,6 +19,12 @@ namespace OutlookFileDrag
         public const int DRAGDROP_S_CANCEL = 0x00040101;
         public const int DRAGDROP_S_USEDEFAULTCURSORS = 0x00040102;
 
+        public const uint DROPEFFECT_NONE = 0;
+        public const uint DROPEFFECT_COPY = 1;
+        public const uint DROPEFFECT_MOVE = 2;
+        public const uint DROPEFFECT_LINK = 4;
+        public const uint DROPEFFECT_SCROLL = 0x80000000;
+
         public const int DV_E_LINDEX = unchecked((int)0x80040068);
         public const int DV_E_FORMATETC = unchecked((int)0x80040064);
         public const int DV_E_TYMED = unchecked((int)0x80040069);
@@ -42,7 +48,7 @@ namespace OutlookFileDrag
         public const int MAX_PATH = 260;
 
         [DllImport("ole32.dll")]
-        public static extern int DoDragDrop(NativeMethods.IDataObject pDataObj, NativeMethods.IDropSource pDropSource, uint dwOKEffects, uint[] pdwEffect);
+        public static extern int DoDragDrop(NativeMethods.IDataObject pDataObj, IntPtr pDropSource, uint dwOKEffects, out uint pdwEffect);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
         public static extern IntPtr GlobalLock(HandleRef handle);
@@ -207,7 +213,7 @@ namespace OutlookFileDrag
     
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.I4)]
-        public delegate int DragDropDelegate(NativeMethods.IDataObject pDataObj, NativeMethods.IDropSource pDropSource, uint dwOKEffects, uint[] pdwEffect);
+        public delegate int DragDropDelegate(NativeMethods.IDataObject pDataObj, IntPtr pDropSource, uint dwOKEffects, out uint pdwEffect);
 
     }
 }

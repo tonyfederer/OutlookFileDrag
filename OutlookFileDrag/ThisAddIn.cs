@@ -1,16 +1,13 @@
 ﻿using System;
 using log4net;
-using Outlook = Microsoft.Office.Interop.Outlook;
 
 namespace OutlookFileDrag
 {
     public partial class ThisAddIn
     {
         private static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private Outlook.Explorer explorer;
         private System.Threading.Timer cleanupTimer;
-
-        internal DragDropHook Hook { get; set; }
+        private DragDropHook hook { get; set; }
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
@@ -20,9 +17,9 @@ namespace OutlookFileDrag
             try
             {                
                 log.Info("Add-in startup");
-                log.InfoFormat("OS: {0} {1}", Environment.OSVersion, Environment.Is64BitOperatingSystem ? "x64" : "x86");
-                log.InfoFormat("Outlook version: {0} {1}", this.Application.Version, Environment.Is64BitProcess ? "x64" : "x86");
-                log.InfoFormat("Language: {0}", Application.LanguageSettings.get_LanguageID(Microsoft.Office.Core.MsoAppLanguageID.msoLanguageIDUI));
+                log.DebugFormat("OS: {0} {1}", Environment.OSVersion, Environment.Is64BitOperatingSystem ? "x64" : "x86");
+                log.DebugFormat("Outlook version: {0} {1}", this.Application.Version, Environment.Is64BitProcess ? "x64" : "x86");
+                log.DebugFormat("Language: {0}", Application.LanguageSettings.get_LanguageID(Microsoft.Office.Core.MsoAppLanguageID.msoLanguageIDUI));
 
                 //Set up exception handlers
                 System.Windows.Forms.Application.ThreadException += Application_ThreadException;
@@ -34,20 +31,14 @@ namespace OutlookFileDrag
                 cleanupTimer = new System.Threading.Timer(CleanupTimer_Callback, null, 0, cleanupTimerInterval * 60 * 1000);
 
                 //Start hook;
-                Hook = new DragDropHook();
-
-                //Hook explorer ViewChange event
-                log.Info("Hooking explorer ViewSwitch event");
-                explorer = this.Application.ActiveExplorer();
-                explorer.ViewSwitch += Explorer_ViewSwitch;
-
-                //Start hook if not in calendar view
-                Explorer_ViewSwitch();
+                hook = new DragDropHook();
+                hook.Start();
             }
             catch (Exception ex)
             {
                 log.Fatal("Fatal error", ex);
-                StopHook();
+                if (hook != null)
+                    hook.Stop();
             }
         }
 
@@ -71,39 +62,7 @@ namespace OutlookFileDrag
             }
             catch (Exception ex)
             {
-                log.Fatal("Fatal error", ex);
-                StopHook();
-            }
-        }
-
-        private void Explorer_ViewSwitch()
-        {
-            try
-            {
-                //HACK: Disable drag and drop hook when in calendar mode
-                //For some reason dragging an item in calendar view throws E_NOINTERFACE exception when DoDragDrop COM function is hooked (thread issue?)
-                Outlook.View view = (Outlook.View)explorer.CurrentView;
-                if (view.ViewType == Outlook.OlViewType.olCalendarView)
-                {
-                    if (Hook.IsHooked)
-                    {
-                        log.Info("Calendar view detected -- stopping hook");
-                        StopHook();
-                    }
-                }
-                else
-                {
-                    if (!Hook.IsHooked)
-                    {
-                        log.Info("Non-calendar view detected -- starting hook");
-                        StartHook();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Fatal("Fatal error", ex);
-                StopHook();
+                log.Error("Error cleaning up temp files", ex);
             }
         }
 
@@ -115,23 +74,13 @@ namespace OutlookFileDrag
             try
             {
                 log.Info("Add-in shutdown");
-                StopHook();
+                if (hook != null)
+                    hook.Stop();
             }
             catch (Exception ex)
             {
                 log.Fatal("Fatal error", ex);
             }
-        }
-
-        private void StartHook()
-        {
-            Hook.StartHook();
-        }
-
-        private void StopHook()
-        {
-            if (Hook != null)
-                Hook.StopHook();
         }
 
         #region VSTO generated code

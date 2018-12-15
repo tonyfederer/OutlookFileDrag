@@ -35,7 +35,7 @@ namespace OutlookFileDrag
             }
         }
 
-        public void StartHook()
+        public void Start()
         {
             try
             {
@@ -54,7 +54,7 @@ namespace OutlookFileDrag
             }
         }
 
-        public void StopHook()
+        public void Stop()
         {
             try
             {
@@ -74,7 +74,7 @@ namespace OutlookFileDrag
             }
         }
 
-        public static int DoDragDropHook(NativeMethods.IDataObject pDataObj, NativeMethods.IDropSource pDropSource, uint dwOKEffects, uint[] pdwEffect)
+        public static int DoDragDropHook(NativeMethods.IDataObject pDataObj, IntPtr pDropSource, uint dwOKEffects, out uint pdwEffect)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace OutlookFileDrag
                 if (!DataObjectHelper.GetDataPresent(pDataObj, "FileGroupDescriptorW"))
                 {
                     log.Info("No virtual files found -- continuing original drag");
-                    return NativeMethods.DoDragDrop(pDataObj, pDropSource, dwOKEffects, pdwEffect);
+                    return NativeMethods.DoDragDrop(pDataObj, pDropSource, dwOKEffects, out pdwEffect);
                 }
 
                 //Start new drag
@@ -90,7 +90,7 @@ namespace OutlookFileDrag
                 log.InfoFormat("Files: {0}", string.Join(",", DataObjectHelper.GetFilenames(pDataObj)));
 
                 NativeMethods.IDataObject newDataObj = new OutlookDataObject(pDataObj);
-                int result = NativeMethods.DoDragDrop(newDataObj, pDropSource, dwOKEffects, pdwEffect);
+                int result = NativeMethods.DoDragDrop(newDataObj, pDropSource, dwOKEffects, out pdwEffect);
 
                 //Get result
                 log.InfoFormat("DoDragDrop result: {0}", result);
@@ -99,6 +99,7 @@ namespace OutlookFileDrag
             catch (Exception ex)
             {
                 log.Warn("Dragging error", ex);
+                pdwEffect = NativeMethods.DROPEFFECT_NONE;
                 return NativeMethods.DRAGDROP_S_CANCEL;
             }
         }
