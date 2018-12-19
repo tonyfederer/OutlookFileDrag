@@ -42,6 +42,39 @@ To install, run the installer that matches your Windows build:
 
 After installing, restart Outlook for the add-in to take effect.
 
+## Automated (Silent) Installation
+
+For administrators, OutlookFileDrag supports automated (silent) installation and uninstallation using `msiexec` with command line parameters.
+
+### Silent Installation
+
+To silently install OutlookFileDrag, use this command:
+
+`msiexec.exe /i <pathtomsi> /qn /log <pathtolog>`
+
+- `<pathtomsi>`: Path to MSI file
+- `<pathtolog>`: Path to log file (if folder is not specified, MSI path is used)
+
+Example: 
+
+`msiexec.exe C:\Install\OutlookFileDrag_x64.msi /qn /log C:\Logs\OutlookFileDragInstall.log`
+
+After installing, restart Outlook for the add-in to take effect.
+
+### Silent Uninstallation
+
+To silently uninstall OutlookFileDrag, use this command:
+
+`msiexec.exe /x <productcode> /qn /log <pathtolog>`
+
+- `<productcode>` for 64-bit version: `{CF5F9043-967C-400D-B6D5-F41AF6AD83AE}`
+- `<productcode>` for 32-bit version: `{7EA6E17B-8802-4E1F-9669-248670B31BFB}`
+- `<logfile>`: Path to log file
+
+Example:
+
+`msiexec.exe /x {CF5F9043-967C-400D-B6D5-F41AF6AD83AE} /qn /log C:\Logs\OutlookFileDragUninstall.log`
+
 ## Acknowledgements
 
 Outlook File Drag uses these open source projects:
