@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using log4net;
 
 namespace OutlookFileDrag
@@ -7,7 +8,7 @@ namespace OutlookFileDrag
     {
         private static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private System.Threading.Timer cleanupTimer;
-        private DragDropHook hook { get; set; }
+        private DragDropHook hook;
 
         private void ThisAddIn_Startup(object sender, System.EventArgs e)
         {
@@ -17,9 +18,12 @@ namespace OutlookFileDrag
             try
             {                
                 log.Info("Add-in startup");
-                log.DebugFormat("OS: {0} {1}", Environment.OSVersion, Environment.Is64BitOperatingSystem ? "x64" : "x86");
-                log.DebugFormat("Outlook version: {0} {1}", this.Application.Version, Environment.Is64BitProcess ? "x64" : "x86");
-                log.DebugFormat("Language: {0}", Application.LanguageSettings.get_LanguageID(Microsoft.Office.Core.MsoAppLanguageID.msoLanguageIDUI));
+
+                //Log version, OS version, Outlook version, and language
+                log.InfoFormat("Version: {0}", Assembly.GetExecutingAssembly().GetName().Version.ToString());
+                log.InfoFormat("OS: {0} {1}", Environment.OSVersion, Environment.Is64BitOperatingSystem ? "x64" : "x86");
+                log.InfoFormat("Outlook version: {0} {1}", this.Application.Version, Environment.Is64BitProcess ? "x64" : "x86");
+                log.InfoFormat("Language: {0}", Application.LanguageSettings.get_LanguageID(Microsoft.Office.Core.MsoAppLanguageID.msoLanguageIDUI));
 
                 //Set up exception handlers
                 System.Windows.Forms.Application.ThreadException += Application_ThreadException;

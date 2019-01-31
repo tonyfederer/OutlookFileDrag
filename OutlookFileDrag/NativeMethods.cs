@@ -10,8 +10,8 @@ namespace OutlookFileDrag
         public const int S_FALSE = 1;
 
         public const short CF_TEXT = 1;
-        public const short CF_HDROP = 15;
         public const short CF_UNICODETEXT = 13;
+        public const short CF_HDROP = 15;
 
         public const int DATA_S_SAMEFORMATETC = 0x00040130;
 
@@ -37,33 +37,22 @@ namespace OutlookFileDrag
         public const int E_UNSPEC = E_FAIL;
         public const int E_UNEXPECTED = unchecked((int)0x8000FFFF);
 
-        public const int MK_LBUTTON = 0x0001;
-        public const int MK_RBUTTON = 0x0002;
-
-        public const int OLE_E_NOTRUNNING = unchecked((int)0x80040005);
-        public const int OLE_S_USEREG = unchecked((int)0x80040005);
-
-        public const int STG_E_MEDIUMFULL = unchecked((int)0x80030070);
-
         public const int MAX_PATH = 260;
 
         [DllImport("ole32.dll")]
         public static extern int DoDragDrop(NativeMethods.IDataObject pDataObj, IntPtr pDropSource, uint dwOKEffects, out uint pdwEffect);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr GlobalLock(HandleRef handle);
+        public static extern IntPtr GlobalLock(IntPtr handle);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern bool GlobalUnlock(HandleRef handle);
+        public static extern bool GlobalUnlock(IntPtr handle);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
-        public static extern int GlobalSize(HandleRef handle);
+        public static extern int GlobalSize(IntPtr handle);
 
         [DllImport("ole32.dll", PreserveSig = false)]
         public static extern ILockBytes CreateILockBytesOnHGlobal(IntPtr hGlobal, bool fDeleteOnRelease);
-
-        [DllImport("ole32.dll", CharSet = CharSet.Auto, PreserveSig = false)]
-        public static extern IntPtr GetHGlobalFromILockBytes(ILockBytes pLockBytes);
 
         [DllImport("ole32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
         public static extern IStorage StgCreateDocfileOnILockBytes(ILockBytes plkbyt, uint grfMode, uint reserved);

@@ -9,7 +9,6 @@ namespace OutlookFileDrag
     static class DataObjectHelper
     {
         private static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-        private static readonly byte[] serializedObjectID = new Guid("FD9EA796-3B13-4370-A679-56106BB288FB").ToByteArray();
 
         internal static int GetClipboardFormat(string name)
         {
@@ -22,8 +21,7 @@ namespace OutlookFileDrag
 
         internal static bool GetDataPresent(NativeMethods.IDataObject data, string formatName)
         {
-
-            //Check if drag contains virtual files
+            //Check if data is present
             log.DebugFormat("Get data present: {0}", formatName);
             FORMATETC format = new FORMATETC();
             format.cfFormat = (short)GetClipboardFormat(formatName);
@@ -49,8 +47,6 @@ namespace OutlookFileDrag
             //Allocate global memory and get pointer
             int dataLength = Marshal.SizeOf(dropFiles) + filenameBytes.Length;
             IntPtr ptrDropFiles = Marshal.AllocHGlobal(dataLength);
-            if (ptrDropFiles == IntPtr.Zero)
-                throw new OutOfMemoryException();
 
             //Copy DROPFILES structure to global memory.
             Marshal.StructureToPtr(dropFiles, ptrDropFiles, true);
@@ -62,6 +58,7 @@ namespace OutlookFileDrag
             //Load structure into medium
             medium.unionmember = ptrDropFiles;
             medium.tymed = TYMED.TYMED_HGLOBAL;
+            medium.pUnkForRelease = IntPtr.Zero;        //HGLOBAL to be released by caller
         }
 
         internal static string[] GetFilenames(NativeMethods.IDataObject data)
@@ -81,14 +78,14 @@ namespace OutlookFileDrag
         internal static string[] GetFilenamesAnsi(NativeMethods.IDataObject data)
         {
             log.Debug("Getting filenames (ANSI)");
-            IntPtr fgdaPtr = IntPtr.Zero;
+            IntPtr ptrFgd = IntPtr.Zero;
             STGMEDIUM medium = new STGMEDIUM();
 
             try
             {
                 //Define FileGroupDescriptor format
                 FORMATETC format = new FORMATETC();
-                format.cfFormat = (short)System.Windows.Forms.DataFormats.GetFormat("FileGroupDescriptor").Id;
+                format.cfFormat = (short)GetClipboardFormat("FileGroupDescriptor");
                 format.dwAspect = DVASPECT.DVASPECT_CONTENT;
                 format.lindex = -1;
                 format.ptd = IntPtr.Zero;
@@ -102,8 +99,9 @@ namespace OutlookFileDrag
                 }
 
                 //Get data into medium
-                medium = new STGMEDIUM();
-                data.GetData(format, out medium);
+                int retVal = data.GetData(format, out medium);
+                if (retVal != NativeMethods.S_OK)
+                    throw new Exception(string.Format("Could not get FileGroupDescriptor format.  Error returned: {0}", retVal));
 
                 //Read medium into byte array
                 log.Debug("Reading structure into memory stream");
@@ -116,31 +114,29 @@ namespace OutlookFileDrag
                     stream.Read(bytes, 0, bytes.Length);
                 }
 
-                //Copy the file group descriptor into unmanaged memory
+                //Copy byte array into unmanaged memory
                 log.Debug("Copying structure into unmanaged memory");
-                fgdaPtr = Marshal.AllocHGlobal(bytes.Length);
-                Marshal.Copy(bytes, 0, fgdaPtr, bytes.Length);
+                ptrFgd = Marshal.AllocHGlobal(bytes.Length);
+                Marshal.Copy(bytes, 0, ptrFgd, bytes.Length);
 
-                //Marshal the unmanaged memory to a FILEGROUPDESCRIPTORA struct
+                //Marshal unmanaged memory to a FILEGROUPDESCRIPTORA struct
                 log.Debug("Marshaling unmanaged memory into FILEGROUPDESCRIPTORA struct");
-                object fgdObj = Marshal.PtrToStructure(fgdaPtr, typeof(NativeMethods.FILEGROUPDESCRIPTORA));
-                NativeMethods.FILEGROUPDESCRIPTORA fgd = (NativeMethods.FILEGROUPDESCRIPTORA)fgdObj;
+                NativeMethods.FILEGROUPDESCRIPTORA fgd = (NativeMethods.FILEGROUPDESCRIPTORA)Marshal.PtrToStructure(ptrFgd, typeof(NativeMethods.FILEGROUPDESCRIPTORA));
                 log.Debug(string.Format("Files found: {0}", fgd.cItems));
 
                 //Create an array to store file names
                 string[] filenames = new string[fgd.cItems];
 
                 //Get the pointer to the first file descriptor
-                IntPtr fdPtr = IntPtr.Add(fgdaPtr, sizeof(uint));
+                IntPtr fdPtr = IntPtr.Add(ptrFgd, sizeof(uint));
 
                 //Loop for the number of files acording to the file group descriptor
                 for (int fdIndex = 0; fdIndex < fgd.cItems; fdIndex++)
                 {
                     log.DebugFormat("Filenames found: {0}", string.Join(", ", filenames));
 
-                    //Marshal the pointer to the file descriptor as a FILEDESCRIPTORA struct
-                    object fdObj = Marshal.PtrToStructure(fdPtr, typeof(NativeMethods.FILEDESCRIPTORA));
-                    NativeMethods.FILEDESCRIPTORA fd = (NativeMethods.FILEDESCRIPTORA)fdObj;
+                    //Marshal pointer to a FILEDESCRIPTORA struct
+                    NativeMethods.FILEDESCRIPTORA fd = (NativeMethods.FILEDESCRIPTORA)Marshal.PtrToStructure(fdPtr, typeof(NativeMethods.FILEDESCRIPTORA));
 
                     //Get filename of file descriptor and put in array
                     filenames[fdIndex] = fd.cFileName;
@@ -157,7 +153,7 @@ namespace OutlookFileDrag
             finally
             {
                 //Release all unmanaged objects
-                Marshal.FreeHGlobal(fgdaPtr);
+                Marshal.FreeHGlobal(ptrFgd);
                 if (medium.pUnkForRelease == null)
                     NativeMethods.ReleaseStgMedium(ref medium);
             }
@@ -166,14 +162,13 @@ namespace OutlookFileDrag
         internal static string[] GetFilenamesUnicode(NativeMethods.IDataObject data)
         {
             log.Debug("Getting filenames (Unicode)");
-            IntPtr fgdaPtr = IntPtr.Zero;
+            IntPtr ptrFgd = IntPtr.Zero;
             STGMEDIUM medium = new STGMEDIUM();
-
             try
             {
                 //Define FileGroupDescriptorW format
                 FORMATETC format = new FORMATETC();
-                format.cfFormat = (short)System.Windows.Forms.DataFormats.GetFormat("FileGroupDescriptorW").Id;
+                format.cfFormat = (short)GetClipboardFormat("FileGroupDescriptorW");
                 format.dwAspect = DVASPECT.DVASPECT_CONTENT;
                 format.lindex = -1;
                 format.ptd = IntPtr.Zero;
@@ -187,8 +182,9 @@ namespace OutlookFileDrag
                 }
 
                 //Get data into medium
-                medium = new STGMEDIUM();
-                data.GetData(format, out medium);
+                int retVal = data.GetData(format, out medium);
+                if (retVal != NativeMethods.S_OK)
+                    throw new Exception(string.Format("Could not get FileGroupDescriptorW format.  Error returned: {0}", retVal));
 
                 //Read medium into byte array
                 log.Debug("Reading structure into memory stream");
@@ -200,39 +196,36 @@ namespace OutlookFileDrag
                     stream.Seek(0, SeekOrigin.Begin);
                     stream.Read(bytes, 0, bytes.Length);
                 }
-
-                //Copy the file group descriptor into unmanaged memory
+                
+                //Copy byte array into unmanaged memory
                 log.Debug("Copying structure into unmanaged memory");
-                fgdaPtr = Marshal.AllocHGlobal(bytes.Length);
-                if (fgdaPtr == IntPtr.Zero)
-                    throw new OutOfMemoryException();
-                Marshal.Copy(bytes, 0, fgdaPtr, bytes.Length);
+                ptrFgd = Marshal.AllocHGlobal(bytes.Length);
+                Marshal.Copy(bytes, 0, ptrFgd, bytes.Length);
 
-                //Marshal the unmanaged memory to a FILEGROUPDESCRIPTORW struct
+                //Marshal unmanaged memory to a FILEGROUPDESCRIPTORW struct
                 log.Debug("Marshaling unmanaged memory into FILEGROUPDESCRIPTORW struct");
-                object fgdObj = Marshal.PtrToStructure(fgdaPtr, typeof(NativeMethods.FILEGROUPDESCRIPTORW));
-                NativeMethods.FILEGROUPDESCRIPTORW fgd = (NativeMethods.FILEGROUPDESCRIPTORW)fgdObj;
+                NativeMethods.FILEGROUPDESCRIPTORW fgd = (NativeMethods.FILEGROUPDESCRIPTORW)Marshal.PtrToStructure(ptrFgd, typeof(NativeMethods.FILEGROUPDESCRIPTORW));
                 log.Debug(string.Format("Files found: {0}", fgd.cItems));
 
                 //Create an array to store file names
                 string[] filenames = new string[fgd.cItems];
 
                 //Get the pointer to the first file descriptor
-                IntPtr fdPtr = IntPtr.Add(fgdaPtr, sizeof(uint));
+                IntPtr ptrFd = IntPtr.Add(ptrFgd, sizeof(uint));
 
                 //Loop for the number of files acording to the file group descriptor
                 for (int fdIndex = 0; fdIndex < fgd.cItems; fdIndex++)
                 {
                     log.DebugFormat("Getting filename {0}", fdIndex);
-                    //Marshal the pointer to the file descriptor as a FILEDESCRIPTORW struct
-                    object fdObj = Marshal.PtrToStructure(fdPtr, typeof(NativeMethods.FILEDESCRIPTORW));
-                    NativeMethods.FILEDESCRIPTORW fd = (NativeMethods.FILEDESCRIPTORW)fdObj;
+
+                    //Marshal pointer to a FILEDESCRIPTORW struct
+                    NativeMethods.FILEDESCRIPTORW fd = (NativeMethods.FILEDESCRIPTORW)Marshal.PtrToStructure(ptrFd, typeof(NativeMethods.FILEDESCRIPTORW));
 
                     //Get filename of file descriptor and put in array
                     filenames[fdIndex] = fd.cFileName;
 
                     //Move the file descriptor pointer to the next file descriptor
-                    fdPtr = IntPtr.Add(fdPtr, Marshal.SizeOf(fd));
+                    ptrFd = IntPtr.Add(ptrFd, Marshal.SizeOf(fd));
                 }
 
                 log.DebugFormat("Filenames found: {0}", string.Join(", ", filenames));
@@ -242,7 +235,7 @@ namespace OutlookFileDrag
             finally
             {
                 //Release all unmanaged objects
-                Marshal.FreeHGlobal(fgdaPtr);
+                Marshal.FreeHGlobal(ptrFgd);
                 if (medium.pUnkForRelease == null)
                     NativeMethods.ReleaseStgMedium(ref medium);
             }
@@ -251,20 +244,20 @@ namespace OutlookFileDrag
         internal static void ReadFileContents(NativeMethods.IDataObject data, int index, Stream stream)
         {
             STGMEDIUM medium = new STGMEDIUM();            
-
             try
             {
                 //Define FileContents format
                 FORMATETC format = new FORMATETC();
-                format.cfFormat = (short)System.Windows.Forms.DataFormats.GetFormat("FileContents").Id;
+                format.cfFormat = (short)GetClipboardFormat("FileContents");
                 format.dwAspect = DVASPECT.DVASPECT_CONTENT;
                 format.lindex = index;
                 format.ptd = IntPtr.Zero;
                 format.tymed = TYMED.TYMED_ISTREAM | TYMED.TYMED_ISTORAGE | TYMED.TYMED_HGLOBAL;
 
                 //Get data
-                medium = new STGMEDIUM();
-                data.GetData(format, out medium);
+                int retVal = data.GetData(format, out medium);
+                if (retVal != NativeMethods.S_OK)
+                    throw new Exception(string.Format("Could not get FileContents format.  Error returned: {0}", retVal));
 
                 //Read medium into stream
                 ReadMediumIntoStream(medium, stream);
@@ -300,37 +293,31 @@ namespace OutlookFileDrag
             //To handle a IStorage it needs to be written into a second unmanaged memory mapped storage 
             //and then the data can be read from memory into a managed byte and returned as a MemoryStream
 
-            NativeMethods.IStorage iStorage = null;
-            NativeMethods.IStorage iStorage2 = null;
             NativeMethods.ILockBytes iLockBytes = null;
-            System.Runtime.InteropServices.ComTypes.STATSTG iLockBytesStat;
+            NativeMethods.IStorage iStorageNew = null;
+            IntPtr ptrRead = IntPtr.Zero;
             try
             {
-                //Marshal the returned pointer to a IStorage object
-                iStorage = (NativeMethods.IStorage)Marshal.GetObjectForIUnknown(handle);
-                Marshal.Release(handle);
+                //Marshal pointer to an IStorage object
+                NativeMethods.IStorage iStorage = (NativeMethods.IStorage)Marshal.GetObjectForIUnknown(handle);
 
-                //Create a ILockBytes (unmanaged byte array) and then create a IStorage using the byte array as a backing store
+                //Create an ILockBytes object on a HGlobal, then create a IStorage object on top of the ILockBytes object
                 iLockBytes = NativeMethods.CreateILockBytesOnHGlobal(IntPtr.Zero, true);
-                iStorage2 = NativeMethods.StgCreateDocfileOnILockBytes(iLockBytes, 0x00001012, 0);
+                iStorageNew = NativeMethods.StgCreateDocfileOnILockBytes(iLockBytes, 0x00001012, 0);
 
-                //Copy the returned IStorage into the new IStorage
-                iStorage.CopyTo(0, null, IntPtr.Zero, iStorage2);
+                //Copy the IStorage object into the new IStorage object
+                iStorage.CopyTo(0, null, IntPtr.Zero, iStorageNew);
                 iLockBytes.Flush();
-                iStorage2.Commit(0);
+                iStorageNew.Commit(0);
 
-                //Get the STATSTG of the ILockBytes to determine how many bytes were written to it
-                iLockBytesStat = new System.Runtime.InteropServices.ComTypes.STATSTG();
-                iLockBytes.Stat(out iLockBytesStat, 1);
-                int iLockBytesSize = (int)iLockBytesStat.cbSize;
-
-                //Read the data from the ILockBytes (unmanaged byte array) into a managed byte array
-                //byte[] iLockBytesContent = new byte[iLockBytesSize];
-                //iLockBytes.ReadAt(0, iLockBytesContent, iLockBytesContent.Length, null);
+                //Get length of ILockBytes byte array
+                System.Runtime.InteropServices.ComTypes.STATSTG stat = new System.Runtime.InteropServices.ComTypes.STATSTG();
+                iLockBytes.Stat(out stat, 1);
+                long length = stat.cbSize;
 
                 //Read bytes into stream
-                IntPtr ptrRead = Marshal.AllocCoTaskMem(sizeof(int));
-                byte[] buffer = new byte[1024];
+                ptrRead = Marshal.AllocCoTaskMem(sizeof(int));
+                byte[] buffer = new byte[4096];     //4 KB buffer
                 int offset = 0;
                 int bytesRead;
                 while (true)
@@ -342,37 +329,31 @@ namespace OutlookFileDrag
                     stream.Write(buffer, 0, bytesRead);
                     offset += bytesRead;
                 }
-                stream.Seek(0, SeekOrigin.Begin);
-
-                //Wrap the managed byte array into a memory stream and return it
-                //return new MemoryStream(iLockBytesContent);
             }
             finally
             {
-                //release all unmanaged objects
-                Marshal.ReleaseComObject(iStorage2);
-                Marshal.ReleaseComObject(iLockBytes);
-                Marshal.ReleaseComObject(iStorage);
+                //Release all unmanaged objects
+                Marshal.FreeCoTaskMem(ptrRead);
+                if (iStorageNew != null)
+                    Marshal.ReleaseComObject(iStorageNew);
+                if (iLockBytes != null)
+                    Marshal.ReleaseComObject(iLockBytes);
             }
         }
 
         private static void ReadIStreamIntoStream(IntPtr handle, Stream stream)
         {
-            IStream iStream = null;
-            System.Runtime.InteropServices.ComTypes.STATSTG iStreamStat;
+            IntPtr ptrRead = IntPtr.Zero;
             try
             {
-                //Marshal the returned pointer to a IStream object
-                iStream = (IStream)Marshal.GetObjectForIUnknown(handle);
-                Marshal.Release(handle);
+                //Marshal pointer to an IStream object
+                IStream iStream = (IStream)Marshal.GetObjectForIUnknown(handle);
 
-                //Get the STATSTG of the IStream to determine how many bytes are in it
-                iStreamStat = new System.Runtime.InteropServices.ComTypes.STATSTG();
-                iStream.Stat(out iStreamStat, 0);
-                int iStreamSize = (int)iStreamStat.cbSize;
+                //Create pointer to integer that stores # of bytes read
+                ptrRead = Marshal.AllocCoTaskMem(sizeof(int));
 
-                IntPtr ptrRead = Marshal.AllocCoTaskMem(sizeof(int));
-                byte[] buffer = new byte[1024];
+                //Copy IStream into managed stream in chunks
+                byte[] buffer = new byte[4096];     //4 KB buffer
                 int bytesRead;
                 while (true)
                 {
@@ -383,31 +364,42 @@ namespace OutlookFileDrag
                     else
                         stream.Write(buffer, 0, bytesRead);
                 }
-                stream.Seek(0, SeekOrigin.Begin);
             }
             finally
             {
                 //Release all unmanaged objects
-                Marshal.ReleaseComObject(iStream);
+                Marshal.FreeCoTaskMem(ptrRead);
             }
+
         }
 
         private static void ReadHGlobalIntoStream(IntPtr handle, Stream stream)
         {
-            IntPtr source = NativeMethods.GlobalLock(new HandleRef((object)null, handle));
+            //Lock HGlobal so it cannot be moved or discarded
+            IntPtr source = NativeMethods.GlobalLock(handle);
+
             if (source == IntPtr.Zero)
-                throw new ExternalException("An external error occurred in GlobalLock", -2147024882);
+                throw new Exception(string.Format("Unable to lock hglobal {0}", source.ToString()));
             try
             {
-                int length = NativeMethods.GlobalSize(new HandleRef((object)null, handle));
-                byte[] buffer = new byte[length];
-                Marshal.Copy(source, buffer, 0, length);
-                stream.Write(buffer, 0, buffer.Length);
+                //Get size of HGlobal
+                int length = NativeMethods.GlobalSize(handle);
+
+                //Copy HGlobal into managed stream in chunks
+                byte[] buffer = new byte[4096];     //4 KB buffer
+                int bytesToCopy;
+                for(int offset = 0; offset < length; offset += buffer.Length)
+                {
+                    //Copy buffer length or remaining length, whichever is smaller
+                    bytesToCopy = Math.Min(buffer.Length, length - offset);
+                    Marshal.Copy(source, buffer, 0, bytesToCopy);
+                    stream.Write(buffer, offset, bytesToCopy);
+                }
             }
             finally
             {
                 //Release all unmanaged objects
-                NativeMethods.GlobalUnlock(new HandleRef((object)null, handle));
+                NativeMethods.GlobalUnlock(handle);
             }
         }
     }

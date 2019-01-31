@@ -21,6 +21,7 @@ namespace OutlookFileDrag
 
         public int EnumFormatEtc(DATADIR direction, out IEnumFORMATETC ppenumFormatEtc)
         {
+            IEnumFORMATETC origEnum = null;
             try
             {
                 log.DebugFormat("IDataObject.EnumFormatEtc called -- direction {0}", direction);
@@ -28,7 +29,6 @@ namespace OutlookFileDrag
                 {
                     case DATADIR.DATADIR_GET:
                         //Get original enumerator
-                        IEnumFORMATETC origEnum;
                         int result = innerData.EnumFormatEtc(direction, out origEnum);
                         if (result != NativeMethods.S_OK)
                         {
@@ -48,7 +48,6 @@ namespace OutlookFileDrag
                             if (cfFormat != NativeMethods.CF_TEXT && cfFormat != NativeMethods.CF_UNICODETEXT && cfFormat != (ushort)DataObjectHelper.GetClipboardFormat("Csv"))
                                 formats.Add(buffer[0]);
                         }
-                        Marshal.ReleaseComObject(origEnum);
 
                         //Add CF_HDROP format
                         FORMATETC format = new FORMATETC();
@@ -78,6 +77,12 @@ namespace OutlookFileDrag
                 log.Error("Exception in IDataObject.EnumFormatEtc", ex);
                 ppenumFormatEtc = null;
                 return NativeMethods.E_UNEXPECTED;
+            }
+            finally
+            {
+                //Release all unmanaged objects
+                if (origEnum != null)
+                    Marshal.ReleaseComObject(origEnum);
             }
         }
 
