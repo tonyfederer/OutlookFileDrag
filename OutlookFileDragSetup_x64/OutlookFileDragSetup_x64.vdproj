@@ -58,13 +58,13 @@
         "Entry"
         {
         "MsmKey" = "8:_5575AAAA0CAC3763D8DCDDD642FBD25F"
-        "OwnerKey" = "8:_54EF5F74A56C4AEE96D4330B540B4A3A"
+        "OwnerKey" = "8:_3DBBABF7C43171A6F7B4D8D682699556"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_5575AAAA0CAC3763D8DCDDD642FBD25F"
-        "OwnerKey" = "8:_3DBBABF7C43171A6F7B4D8D682699556"
+        "OwnerKey" = "8:_54EF5F74A56C4AEE96D4330B540B4A3A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -148,49 +148,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_591351D571FEB540A92347F0F74B55CE"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5575AAAA0CAC3763D8DCDDD642FBD25F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9B3B11113C57483FCBDDB37CB3ED5F37"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_BB365CE8FF8B85A3589349A35DAB0785"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3DBBABF7C43171A6F7B4D8D682699556"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_133D4E0B8AD91071625356F7F9F22C66"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_12FE3AC54ED17E0AB1007324ABFD58D1"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_C3161A936F4192497A0972C3EC781BF6"
+        "OwnerKey" = "8:_CE28E7CBCA9C5EDB3BD3A2F1F2116DF9"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -202,7 +160,49 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CE28E7CBCA9C5EDB3BD3A2F1F2116DF9"
+        "OwnerKey" = "8:_C3161A936F4192497A0972C3EC781BF6"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_12FE3AC54ED17E0AB1007324ABFD58D1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_133D4E0B8AD91071625356F7F9F22C66"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_3DBBABF7C43171A6F7B4D8D682699556"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_BB365CE8FF8B85A3589349A35DAB0785"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_9B3B11113C57483FCBDDB37CB3ED5F37"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_5575AAAA0CAC3763D8DCDDD642FBD25F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_591351D571FEB540A92347F0F74B55CE"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -716,15 +716,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:Outlook File Drag"
-        "ProductCode" = "8:{4D17A106-6F0C-469A-BC97-9B71E79B3CA8}"
-        "PackageCode" = "8:{EBCA38DE-16CA-486D-AF62-B375FD13A4B5}"
+        "ProductCode" = "8:{46A0554A-5E74-4C98-8B83-C039167DA9C3}"
+        "PackageCode" = "8:{7004BDCB-140D-41EC-A370-FBA5CF6056A1}"
         "UpgradeCode" = "8:{65870D9B-6652-4150-830B-C5199F26E62C}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:1.0.8"
+        "ProductVersion" = "8:1.0.9"
         "Manufacturer" = "8:Tony Federer"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/tonyfederer/OutlookFileDrag"

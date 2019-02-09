@@ -89,11 +89,15 @@ namespace OutlookFileDrag
                 log.Info("Virtual files found -- starting new drag adding CF_HDROP format");
                 log.InfoFormat("Files: {0}", string.Join(",", DataObjectHelper.GetFilenames(pDataObj)));
 
-                NativeMethods.IDataObject newDataObj = new OutlookDataObject(pDataObj);
+                OutlookDataObject newDataObj = new OutlookDataObject(pDataObj);
                 int result = NativeMethods.DoDragDrop(newDataObj, pDropSource, dwOKEffects, out pdwEffect);
 
+                //If files were dropped and drop effect was "move", then override to "copy" so original item is not deleted
+                if (newDataObj.FilesDropped && pdwEffect == NativeMethods.DROPEFFECT_MOVE)
+                    pdwEffect = NativeMethods.DROPEFFECT_COPY;
+
                 //Get result
-                log.InfoFormat("DoDragDrop result: {0}", result);
+                log.InfoFormat("DoDragDrop effect: {0} result: {1}", pdwEffect, result);
                 return result;
             }
             catch (Exception ex)

@@ -14,6 +14,8 @@ namespace OutlookFileDrag
         private string[] tempFilenames;
         private static ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
+        public bool FilesDropped { get; private set; }
+
         public OutlookDataObject(NativeMethods.IDataObject innerData)
         {
             this.innerData = innerData;
@@ -143,6 +145,7 @@ namespace OutlookFileDrag
                     //Get list of dropped files
                     log.Debug("Setting drop files");
                     DataObjectHelper.SetDropFiles(ref medium, tempFilenames);
+                    FilesDropped = true;
                     return NativeMethods.S_OK;
                 }
                 else if (format.cfFormat == NativeMethods.CF_TEXT || format.cfFormat == NativeMethods.CF_UNICODETEXT || format.cfFormat == (ushort)DataObjectHelper.GetClipboardFormat("Csv"))
