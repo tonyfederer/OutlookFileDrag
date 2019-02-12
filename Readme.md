@@ -38,8 +38,8 @@ later in a cleanup process.
 
 To install, run the installer that matches your Windows build:
 
-- [Download for 64-bit Windows (Outlook 32-bit or 64-bit)](https://github.com/tonyfederer/OutlookFileDrag/releases/download/v1.0.9/OutlookFileDragSetup_x64.zip)
-- [Download for 32-bit Windows](https://github.com/tonyfederer/OutlookFileDrag/releases/download/v1.0.9/OutlookFileDragSetup.zip)
+- [Download for 64-bit Windows (Outlook 32-bit or 64-bit)](https://github.com/tonyfederer/OutlookFileDrag/releases/download/v1.0.10/OutlookFileDragSetup_x64.zip)
+- [Download for 32-bit Windows](https://github.com/tonyfederer/OutlookFileDrag/releases/download/v1.0.10/OutlookFileDragSetup.zip)
 
 After installing, restart Outlook for the add-in to take effect.
 
@@ -94,6 +94,9 @@ If you find this project useful, please consider donating.  Your donations are a
 [![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BSAGCF5VAJLN2)
 
 ## Version History
+
+### 1.0.10
+- Fixed System.ArgumentException bug in ReadHGlobalIntoStream method when reading more than 4 KB introduced in version 1.0.8.
 
 ### 1.0.9
 - If files were dropped and drop effect was "move", then override to "copy" so original item is not deleted
