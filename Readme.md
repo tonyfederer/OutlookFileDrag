@@ -2,6 +2,12 @@
 
 *Drag and drop Outlook items as files into any application*
 
+## Read This First!
+
+Microsoft Edge (as of Windows 10 1709) and Google Chrome (as of version 76) 
+natively support drag and drop from Outlook on Windows.  If you use one of these 
+browsers, then this plugin is not necessary.
+
 ## Overview
 
 Outlook File Drag is an add-in for Outlook 2013 and 2016 that allows you to drag
