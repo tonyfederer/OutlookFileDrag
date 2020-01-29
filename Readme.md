@@ -101,6 +101,9 @@ If you find this project useful, please consider donating.  Your donations are a
 
 ## Version History
 
+### 1.0.11
+- Fixed drag and drop of embedded RTF attachments (thanks chrisv2)
+
 ### 1.0.10
 - Fixed System.ArgumentException bug in ReadHGlobalIntoStream method when reading more than 4 KB introduced in version 1.0.8.
 
