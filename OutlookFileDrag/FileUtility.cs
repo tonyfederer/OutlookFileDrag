@@ -67,9 +67,11 @@ namespace OutlookFileDrag
                 string justFilenameNoExt = Path.GetFileNameWithoutExtension(filename);
                 string justExt = Path.GetExtension(filename);
 
-                justFilenameNoExt = Regex.Replace(justFilenameNoExt, @"[^a-z,A-Z,0-9]+", "_");
+                string justFilenameNoExtSimple = Regex.Replace(justFilenameNoExt, @"[^a-z,A-Z,0-9]+", "_");
 
-                filename = Path.Combine(justPath, justFilenameNoExt + justExt);
+                log.Info("Using " + justFilenameNoExtSimple + justExt + " as CF_HDROP filename instead of "+justFilenameNoExt + justExt);
+
+                filename = Path.Combine(justPath, justFilenameNoExtSimple + justExt);
             }
             
             //If file does not exist, use original filename
