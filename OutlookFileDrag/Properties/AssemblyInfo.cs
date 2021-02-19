@@ -7,7 +7,7 @@ using System.Security;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Outlook File Drag")]
-[assembly: AssemblyDescription("Drag and drop Outlook items and attachments as files into any application")]
+[assembly: AssemblyDescription("Drag and drop Outlook items and attachments as files into any application (and replace special chars)")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Tony Federer")]
 [assembly: AssemblyProduct("Outlook File Drag")]
@@ -33,6 +33,6 @@ using System.Security;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.11.0")]
-[assembly: AssemblyFileVersion("1.0.11.0")]
+[assembly: AssemblyVersion("1.1.0.0")]
+[assembly: AssemblyFileVersion("1.1.0.0")]
 

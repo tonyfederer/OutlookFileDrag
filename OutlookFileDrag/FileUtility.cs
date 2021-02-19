@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using log4net;
 
 namespace OutlookFileDrag
@@ -56,6 +57,21 @@ namespace OutlookFileDrag
             {
                 ext = Path.GetExtension(filename);
                 filename = filename.Substring(0, NativeMethods.MAX_PATH - ext.Length - 1) + ext;
+            }
+
+            bool replaceSpecialChars = bool.Parse(System.Configuration.ConfigurationManager.AppSettings["ReplaceSpecialChars"]);
+
+            if (replaceSpecialChars)
+            {
+                string justPath = Path.GetDirectoryName(filename);
+                string justFilenameNoExt = Path.GetFileNameWithoutExtension(filename);
+                string justExt = Path.GetExtension(filename);
+
+                string justFilenameNoExtSimple = Regex.Replace(justFilenameNoExt, @"[^a-z,A-Z,0-9]+", "_");
+
+                log.Info("Using " + justFilenameNoExtSimple + justExt + " as CF_HDROP filename instead of "+justFilenameNoExt + justExt);
+
+                filename = Path.Combine(justPath, justFilenameNoExtSimple + justExt);
             }
             
             //If file does not exist, use original filename
