@@ -392,7 +392,7 @@ namespace OutlookFileDrag
                 {
                     //Copy buffer length or remaining length, whichever is smaller
                     bytesToCopy = Math.Min(buffer.Length, length - offset);
-                    Marshal.Copy(source, buffer, 0, bytesToCopy);
+                    Marshal.Copy(source + offset, buffer, 0, bytesToCopy);
                     stream.Write(buffer, 0, bytesToCopy);
                 }
             }
